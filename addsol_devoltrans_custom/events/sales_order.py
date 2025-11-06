@@ -25,6 +25,6 @@ def on_submit(doc, method):
 
 doc_events = {
     "Sales Order": {
-        "on_submit": on_submit
+        "on_submit": "addsol_devoltrans_custom.events.sales_order.on_submit"
     }
 }
