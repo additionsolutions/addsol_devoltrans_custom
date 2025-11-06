@@ -15,16 +15,20 @@ def on_submit(doc, method):
             "status": "Open"
         }).insert(ignore_permissions=True)
 
+        # Rename project to be more descriptive
         new_name = f"{project.name} : {doc.customer_name} : {doc.name}"
         project.db_set("project_name", new_name)
 
+        # Link back to Sales Order
         doc.db_set("project", project.name)
+
         frappe.msgprint(
-            f"Project {project.name} created for Sales Order {doc.name}")
+            f"Project <b>{project.name}</b> created for Sales Order <b>{doc.name}</b>", indicator="green")
 
 
+# This is what hooks.py will pick up
 doc_events = {
     "Sales Order": {
-        "on_submit": "addsol_devoltrans_custom.events.sales_order.on_submit"
+        "on_submit": on_submit
     }
 }
