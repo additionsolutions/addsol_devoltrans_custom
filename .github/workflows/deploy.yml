@@ -25,6 +25,16 @@ jobs:
           ssh -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=no ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} << 'EOF'
             set -e
 
+            # --- Load nvm for non-interactive shells ---
+            export NVM_DIR="$HOME/.nvm"
+            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+            [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+            nvm use 18
+
+            echo "Node version in CI:"
+            node -v
+            yarn -v
+
             echo ">>> Navigating to app folder..."
             cd /home/addsol/frappe-bench/apps/addsol_devoltrans_custom
 
