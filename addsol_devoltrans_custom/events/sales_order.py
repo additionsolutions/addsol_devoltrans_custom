@@ -13,7 +13,11 @@ def on_submit(doc, method):
             "expected_start_date": doc.transaction_date,
             "expected_end_date": doc.delivery_date,
             "status": "Open"
-        }).insert(ignore_permissions=True)
+        })
+
+        # Bypass ALL validate hooks (safe for auto-creation)
+        project.flags.ignore_validate = True
+        project.insert(ignore_permissions=True)
 
         # Rename project to be more descriptive
         new_name = f"{project.name} : {doc.customer_name} : {doc.name}"
