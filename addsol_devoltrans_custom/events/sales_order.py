@@ -29,6 +29,6 @@ def on_submit(doc, method):
 # This is what hooks.py will pick up
 doc_events = {
     "Sales Order": {
-        "on_submit": on_submit
+        "on_submit": "addsol_devoltrans_custom.events.sales_order.on_submit"
     }
 }
