@@ -28,6 +28,22 @@ Pre-commit is configured to use the following tools for checking and formatting 
 - prettier
 - pyupgrade
 
-### License
 
-mit
+### Run this commands to reload
+(replace 'deverp.aitspl.com' with site name)
+
+bench --site deverp.aitspl.com clear-cache
+// bench --site deverp.aitspl.com reload-doc addsol_devoltrans_custom
+
+bench restart
+
+If restart gives error, try:
+bench setup socketio
+bench setup supervisor
+bench setup redis
+sudo supervisorctl reload
+
+### Confirm if hooks are merged
+bench --site deverp.aitspl.com execute frappe.get_hooks --args doc_events
+bench --site deverp.aitspl.com execute frappe.get_hooks --args scheduler_events
+bench --site deverp.aitspl.com execute frappe.get_hooks --args override_whitelisted_methods

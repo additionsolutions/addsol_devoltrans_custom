@@ -1,3 +1,7 @@
+import importlib
+import pkgutil
+from pathlib import Path
+
 app_name = "addsol_devoltrans_custom"
 app_title = "Addsol Devoltrans Custom"
 app_publisher = "Addition Solutions"
@@ -242,3 +246,65 @@ app_license = "mit"
 # 	"Logging DocType Name": 30  # days to retain logs
 # }
 
+
+# --- Global containers ---
+doc_events = {}
+scheduler_events = {}
+override_whitelisted_methods = {}
+
+
+def _load_modules_from_dir(package: str, target_dict: dict, expected_attr: str):
+    """Generic loader: loads all modules under package if they define expected_attr dict"""
+    package_path = Path(__file__).parent / package.split(".")[-1]
+    if not package_path.exists():
+        return
+
+    for module_info in pkgutil.iter_modules([str(package_path)]):
+        module_name = f"{package}.{module_info.name}"
+        module = importlib.import_module(module_name)
+        if hasattr(module, expected_attr):
+            target_dict.update(getattr(module, expected_attr))
+
+
+def _load_scheduler_jobs():
+    """Load scheduled jobs from jobs/ folder"""
+    package = f"{app_name}.jobs"
+    package_path = Path(__file__).parent / "jobs"
+    if not package_path.exists():
+        return
+
+    # Initialize all event types
+    scheduler_events.update({
+        "all": [],
+        "daily": [],
+        "hourly": [],
+        "weekly": [],
+        "monthly": []
+    })
+
+    for module_info in pkgutil.iter_modules([str(package_path)]):
+        module_name = f"{package}.{module_info.name}"
+        module = importlib.import_module(module_name)
+        for key in scheduler_events.keys():
+            if hasattr(module, key):
+                scheduler_events[key].extend(getattr(module, key))
+
+
+def _load_whitelisted_methods():
+    """Auto-register API endpoints"""
+    package = f"{app_name}.api"
+    package_path = Path(__file__).parent / "api"
+    if not package_path.exists():
+        return
+
+    for module_info in pkgutil.iter_modules([str(package_path)]):
+        module_name = f"{package}.{module_info.name}"
+        module = importlib.import_module(module_name)
+        if hasattr(module, "whitelisted_methods"):
+            override_whitelisted_methods.update(module.whitelisted_methods)
+
+
+# Execute all loaders
+_load_modules_from_dir(f"{app_name}.events", doc_events, "doc_events")
+_load_scheduler_jobs()
+_load_whitelisted_methods()
